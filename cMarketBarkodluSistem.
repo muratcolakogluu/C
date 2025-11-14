@@ -1,0 +1,196 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <string.h>
+
+typedef struct Urunler {
+    char kod[9];    // Urun kodu icin dizi.
+    int fiyat;      // Urun fiyati icin degisken.
+} a;
+
+// Urun koduna gore dizi siralar.
+void alfabetiksiralama(a dizi[], int low, int high) {
+    if (low < high) {
+        char* pivot = dizi[high].kod;      // Pivot kodunu secer.
+        int i = low - 1;
+
+        for (int j = low; j < high; j++) { // Diziyi boler.
+            if (strcmp(dizi[j].kod, pivot) < 0) {
+                i++;
+                a temp = dizi[i];           // Elemanlari degistirir.
+                dizi[i] = dizi[j];
+                dizi[j] = temp;
+            }
+        }
+
+        a temp = dizi[i + 1];              // Pivotu uygun konuma koyar.
+        dizi[i + 1] = dizi[high];
+        dizi[high] = temp;
+
+        int pi = i + 1;
+        alfabetiksiralama(dizi, low, pi - 1);   // Sol alt diziyi sirala.
+        alfabetiksiralama(dizi, pi + 1, high);  // Sag alt diziyi sirala.
+    }
+}
+
+// Urun fiyatina gore diziyi artan sirada siralar.
+void quickSort(a dizi[], int low, int high) {
+    if (low < high) {
+        int pivot = dizi[high].fiyat;      // Pivot fiyati secer.
+        int i = low - 1;
+
+        for (int j = low; j < high; j++) { // Diziyi boler.
+            if (dizi[j].fiyat < pivot) {
+                i++;
+                a temp = dizi[i];           // Elemanlari degistirir.
+                dizi[i] = dizi[j];
+                dizi[j] = temp;
+            }
+        }
+
+        a temp = dizi[i + 1];              // Pivotu uygun konuma koyar.
+        dizi[i + 1] = dizi[high];
+        dizi[high] = temp;
+
+        int pi = i + 1;
+        quickSort(dizi, low, pi - 1);      // Sol alt diziyi sirala.
+        quickSort(dizi, pi + 1, high);     // Sag alt diziyi sirala.
+    }
+}
+
+// Urun kodu arar ve sonucu yazar.
+void arama(a dizi[]){
+    int i, dogrusayisi = 0;
+    char aranan_kod[9];
+
+    printf("Aranacak kodu girin: ");
+    gets(aranan_kod);                   // Aranan kodu alir.
+    for (i = 0; i < 20; i++) {          // Tum urunleri tarar.
+        if (strcmp(dizi[i].kod, aranan_kod) == 0) {
+            printf("Bulundu: %s - %d TL\n", dizi[i].kod, dizi[i].fiyat);
+            dogrusayisi++;
+        }
+    }
+    if (dogrusayisi == 0) {
+        printf("Aradiginiz urun stokta yoktur...\n");  // Bulunamazsa mesaj.
+    }
+}
+
+// Urun koduna gore silme islemi yapar ve dosyayi gunceller.
+void urunsilme(a dizi[]) {
+    int i, j, index = -1;
+    char aranan_kod[9];
+
+    printf("Silmek istediginiz urunun kodunu giriniz...\n");
+    gets(aranan_kod);                   // Silinecek kodu alir.
+
+    for (i = 0; i < 20; i++) {          // Urunleri tarar.
+        if (strcmp(dizi[i].kod, aranan_kod) == 0) {
+            index = i;
+            break;
+        }
+    }
+
+    if (index == -1) {                  // Bulunamazsa diye mesaj.
+        printf("Aradiginiz urun bulunamadi...\n");
+        return;
+    }
+
+    for (j = index; j < 19; j++) {      // Diziyi kaydirarak siler.
+        dizi[j] = dizi[j + 1];
+    }
+
+    printf("Urun silindi. %s : %d TL\n",dizi[i].kod,dizi[i].fiyat);
+
+    FILE *fptr = fopen("urunler.txt", "w");
+    for (i = 0; i < 19; i++) {
+        fprintf(fptr, "%s %d\n", dizi[i].kod, dizi[i].fiyat);
+    }
+    fclose(fptr);
+}
+
+int main() {
+    int i, j, secim;
+    char harfler[23] = {
+        'A','B','C','D','E','F','G','H',
+        'I','J','K','L','M','N','O','P',
+        'R','S','T','U','V','Y','Z'
+    };
+    int urunsayisi = 20;
+    a urun[20];
+    srand(time(0));                     // Rastgele sayi fonksiyonu.
+
+    for (i = 0; i < urunsayisi; i++) {  // Kod ve fiyat uretir.
+        for (j = 0; j < 8; j++) {
+            if (j < 4)
+                urun[i].kod[j] = harfler[rand() % 23];
+            else
+                urun[i].kod[j] = '0' + (rand() % 10);
+        }
+        urun[i].kod[8] = '\0';
+        urun[i].fiyat = rand() % 450 + 50;
+    }
+
+    FILE *fptr = fopen("urunler.txt", "w");  // Baslangic listesini yazar.
+    for (i = 0; i < urunsayisi; i++)
+        fprintf(fptr, "%s %d\n", urun[i].kod, urun[i].fiyat);
+    fclose(fptr);
+while (secim != 0) { // Kullanici 0 girene kadar dongu.
+    printf("****************Menu****************\n");
+    printf("\nRastgele yazmak icin 1'i tuslayin : \n");
+    printf("\nFiyata gore artan yazmak icin 2'yi tuslayin : \n");
+    printf("\nAlfabetik yazmak icin 3'u tuslayin : \n");
+    printf("\nKod aramak icin 4'u tuslayin : \n");
+    printf("\nUrun silmek icin 5'i tuslayin : \n");
+
+    for (i = 0; i < urunsayisi; i++)     // Ilk listeyi ekrana basar.
+        printf("\n%s   %d", urun[i].kod, urun[i].fiyat);
+    printf("\n");
+
+
+        scanf("%d", &secim);
+        getchar();                     // Yeni satir karakterini temizler.
+
+        switch (secim) {
+            case 1: // Rastgele sirayi ekrana yaz.
+                fptr = fopen("urunler.txt", "r");
+                for (i = 0; i < urunsayisi; i++) {
+                    fscanf(fptr, "%s %d", urun[i].kod, &urun[i].fiyat);
+                    printf("%s %d\n", urun[i].kod, urun[i].fiyat);
+                }
+                fclose(fptr);
+                system("start urunler.txt");
+                break;
+            case 2: // Fiyata gore siralar ve dosyaya kaydeder.
+                quickSort(urun, 0, urunsayisi-1);
+                fptr = fopen("fiyat_sirali.txt", "w");
+                for (i = 0; i < urunsayisi; i++) {
+                    fprintf(fptr, "%s %d\n", urun[i].kod, urun[i].fiyat);
+                    printf("%s %d\n", urun[i].kod, urun[i].fiyat);
+                }
+                fclose(fptr);
+                system("start fiyat_sirali.txt");
+                break;
+            case 3: // Alfabetik siralar ve dosyaya kaydeder.
+                alfabetiksiralama(urun, 0, urunsayisi-1);
+                fptr = fopen("kod_sirali.txt", "w");
+                for (i = 0; i < urunsayisi; i++) {
+                    fprintf(fptr, "%s %d\n", urun[i].kod, urun[i].fiyat);
+                    printf("%s %d\n", urun[i].kod, urun[i].fiyat);
+                }
+                fclose(fptr);
+                system("start kod_sirali.txt");
+                break;
+            case 4: // Urun arama fonksiyonunu calistir.
+                arama(urun);
+                break;
+            case 5: // Urun silme fonksiyonunu calistir.
+                urunsilme(urun);
+                urunsayisi--;
+                break;
+        }
+    }
+
+    printf("Bizi kullandiginiz icin tesekkur ederiz :D\n");  // Veda mesaji.
+    return 0;
+}
