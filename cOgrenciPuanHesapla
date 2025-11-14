@@ -1,0 +1,71 @@
+ #include <stdio.h>
+
+    #include <stdlib.h>
+
+    #include <time.h>
+
+
+    typedef struct Ogrenci{
+
+    int ogr_no;
+    int cevap[20];
+    int dogru;
+    int yanlis;
+    int bos;
+    int puan;
+    }ogr;
+
+    int main(){
+    int i,j;
+
+    ogr ogrenciler[10];
+
+    int cvp[20]={2,4,2,3,4,1,2,3,4,2,1,2,3,4,3,1,4,2,4,3};      //Cevap anahtarýmýz.
+
+    srand(time(0));
+
+        for(i=0;i<10;i++){
+                ogrenciler[i].dogru = 0;
+                ogrenciler[i].yanlis = 0;
+                ogrenciler[i].bos = 0;
+
+            for(j=0;j<20;j++){
+
+                ogrenciler[i].cevap[j] = rand() % 5+1;      //ogrencilere rastgele cevaplar verdirmesini saglar.
+
+                if(ogrenciler[i].cevap[j] == 5) {
+                        ogrenciler[i].bos++;
+        }
+                else if(ogrenciler[i].cevap[j] == cvp[j]) {
+                        ogrenciler[i].dogru++;
+
+}
+                else {
+                        ogrenciler[i].yanlis++;
+}
+    int dogru_bir = ogrenciler[i].yanlis/3;     //3 yanlistan cikmis dogru sayisi.
+    ogrenciler[i].puan=(ogrenciler[i].dogru-dogru_bir)*5;       //5 ile carparak puaný bulunur.
+        }}
+        for(i=0;i<10;i++){
+    ogrenciler[i].ogr_no = 1000 + i;        //Numaralandýrma yapýlýr.
+}
+
+
+        FILE *student;
+        student = fopen("notlar.txt","w");      //Dosyayý açar ve yazar.
+        if(student==NULL){
+            printf("Dosya Acilmadi");
+        }
+fprintf(student,"  3 Yanlis 1 Dogruyu goturmektedir!!!\n\n\n");
+fprintf(student,"  no    dogru yanlis bos puan\n");
+    for(i=0;i<10;i++){
+            if(ogrenciler[i].puan<0){
+                ogrenciler[i].puan=0;
+            }
+            fprintf(student,"%5d %5d %5d %5d %5d\n",ogrenciler[i].ogr_no,ogrenciler[i].dogru,ogrenciler[i].yanlis,ogrenciler[i].bos,ogrenciler[i].puan);        //Dosyaya degerler yazýlýr.
+
+    }
+    fclose(student);            //Dosya kapanýr
+    system("start notlar.txt");     //Notlar.txt açýlýr.
+
+    }
